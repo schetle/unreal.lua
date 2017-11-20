@@ -10,6 +10,9 @@ class LUAPLUGINRUNTIME_API ULuaScript : public UObject
 {
 	GENERATED_BODY()
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LuaScript)
+	FString FileName;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = LuaScript)
 	FString Code;
 };

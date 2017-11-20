@@ -11,25 +11,29 @@ ULuaFactory::ULuaFactory()
 
 	bCreateNew = false;
 	bEditorImport = true;
-	bText = true;
-	bEditAfterNew = true;
+	bEditAfterNew = false;
 
-	Formats.Add(TEXT("lua;lua script file"));
+	Formats.Add(TEXT("lua;Lua script file"));
 }
 
 bool ULuaFactory::FactoryCanImport(const FString& Filename)
 {
 	return true;
-// 	FString FileContent;
-// 	if (FFileHelper::LoadFileToString(/*out*/ FileContent, *Filename))
-// 	{
-// 	}
-// 	return true;
 }
 
-UObject* ULuaFactory::FactoryCreateText(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const TCHAR*& Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn)
-{
-	ULuaScript* NewCode = NewObject<ULuaScript>(InParent, InName, Flags);
-	NewCode->Code = FString(BufferEnd - Buffer, Buffer);
-	return NewCode;
+UObject* ULuaFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags,
+	const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled) {
+
+	ULuaScript* LuaScript = nullptr;
+	FString Code;
+
+	if (FFileHelper::LoadFileToString(Code, *Filename)) {
+		LuaScript = NewObject<ULuaScript>(InParent, InClass, InName, Flags);
+		LuaScript->Code = Code;
+		LuaScript->FileName = *Filename.ToString();
+	}
+
+	bOutOperationCanceled = false;
+
+	return LuaScript;
 }
