@@ -13,6 +13,8 @@ public class LuaPluginEditor : ModuleRules
 				"Core",
 				"CoreUObject",
                 "UnrealEd", // for FAssetEditorManager
+				"Slate",
+				"SlateCore",
 				"LuaPluginRuntime"
 			}
 			);

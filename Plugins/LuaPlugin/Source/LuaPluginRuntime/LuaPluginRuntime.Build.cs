@@ -1,6 +1,7 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class LuaPluginRuntime : ModuleRules
 {
@@ -17,7 +18,7 @@ public class LuaPluginRuntime : ModuleRules
 				"Core",
 				"CoreUObject",
 			}
-			)
+			);
 
 		PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "Lua", "Include"));
 

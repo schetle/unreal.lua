@@ -30,7 +30,7 @@ UObject* ULuaFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNam
 	if (FFileHelper::LoadFileToString(Code, *Filename)) {
 		LuaScript = NewObject<ULuaScript>(InParent, InClass, InName, Flags);
 		LuaScript->Code = Code;
-		LuaScript->FileName = *Filename.ToString();
+		LuaScript->FileName = Filename;
 	}
 
 	bOutOperationCanceled = false;
