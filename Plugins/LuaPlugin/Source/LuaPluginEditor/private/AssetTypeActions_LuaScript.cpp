@@ -1,10 +1,40 @@
 #include "LuaFactory.h"
 #include "AssetTypeActions_LuaScript.h"
 #include "FileHelper.h"
+#include "EditorStyle.h"
+#include "Editor/UnrealEd/Public/EditorReimportHandler.h"
 
-void FAssetTypeActions_LuaScript::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<IToolkitHost> EditWithinLevelEditor) {
+
+#define LOCTEXT_NAMESPACE "AssetTypeActions"
+
+
+void FAssetTypeActions_LuaScript::OpenAssetEditor(const TArray<UObject*>& InObjects,
+                                                  TSharedPtr<IToolkitHost> EditWithinLevelEditor) {
+    //FAssetTypeActions_Base::OpenAssetEditor(InObjects, EditWithinLevelEditor);
+
+    // Enable this to allow an external editor to modify the asset's source file.
     ULuaScript* luaAsset = Cast<ULuaScript>(InObjects[0]);
-    FPlatformProcess::LaunchFileInDefaultExternalApplication(*luaAsset->FileName, NULL, ELaunchVerb::Open);
+    FPlatformProcess::LaunchFileInDefaultExternalApplication(*luaAsset->SourceFilename, NULL, ELaunchVerb::Open);
+}
+
+bool FAssetTypeActions_LuaScript::CanExecuteReimport(const TArray<TWeakObjectPtr<ULuaScript>> Objects) const {
+    for (auto ObjIt = Objects.CreateConstIterator(); ObjIt; ++ObjIt) {
+        auto Object = (*ObjIt).Get();
+        if (Object) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void FAssetTypeActions_LuaScript::ExecuteReimport(const TArray<TWeakObjectPtr<ULuaScript>> Objects) const {
+    for (auto ObjIt = Objects.CreateConstIterator(); ObjIt; ++ObjIt) {
+        auto Object = (*ObjIt).Get();
+        if (Object) {
+            FReimportManager::Instance()->Reimport(Object, /*bAskForNewFileIfMissing=*/false);
+        }
+    }
 }
 
 bool FAssetTypeActions_LuaScript::HasActions(const TArray<UObject*>& InObjects) const {
@@ -12,40 +42,17 @@ bool FAssetTypeActions_LuaScript::HasActions(const TArray<UObject*>& InObjects) 
 }
 
 void FAssetTypeActions_LuaScript::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder) {
-    FAssetTypeActions_Base::GetActions(InObjects, MenuBuilder);
-
-    auto ScriptAssets = GetTypedWeakObjectPtrs<ULuaScript>(InObjects);
+    auto Scripts = GetTypedWeakObjectPtrs<ULuaScript>(InObjects);
 
     MenuBuilder.AddMenuEntry(
-        LOCTEXT("LuaScript_Reimport", "Re-Import"),
-        LOCTEXT("LuaScript_Reimport", "Reload contents"),
-        FSlateIcon(),
+        LOCTEXT("LuaScript_Reimport", "Reimport"),
+        LOCTEXT("LuaScript_Reimport", "Reload the selected Lua script(s)."),
+        FSlateIcon(FEditorStyle::GetStyleSetName(), "ContentBrowser.AssetActions.ReimportAsset"),
         FUIAction(
-            FExecuteAction::CreateLambda([=] {
-                for (auto& Script : ScriptAssets)
-                {
-                    if (Script.IsValid() && !Script->FileName.IsEmpty())
-                    {
-                        FString Code;
-                        if (FFileHelper::LoadFileToString(Code, *Script->FileName)) {
-                            Script->Code = Code;
-                            Script->PostEditChange();
-                            Script->MarkPackageDirty();
-                        }
-                      
-                    }
-                }
-            }),
-            FCanExecuteAction::CreateLambda([=] {
-                for (auto& Script : ScriptAssets)
-                {
-                    if (Script.IsValid() && !Script->FileName.IsEmpty())
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            })
+            FExecuteAction::CreateSP(this, &FAssetTypeActions_LuaScript::ExecuteReimport, Scripts),
+            FCanExecuteAction::CreateSP(this, &FAssetTypeActions_LuaScript::CanExecuteReimport, Scripts)
         )
     );
 }
+
+#undef LOCTEXT_NAMESPACE
