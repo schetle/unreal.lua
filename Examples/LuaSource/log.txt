@@ -1,0 +1,10 @@
+[Sun Nov 19 17:00:08 2017] lua VM shutdown  
+[Sun Nov 19 17:03:23 2017] lua VM shutdown  
+[Sun Nov 19 17:04:25 2017] lua VM shutdown  
+[Sun Nov 19 17:05:53 2017] lua VM shutdown  
+[Sun Nov 19 17:06:12 2017] lua VM shutdown  
+[Sun Nov 19 17:07:21 2017] lua VM shutdown  
+[Sun Nov 19 17:09:41 2017] lua VM shutdown  
+[Sun Nov 19 17:09:53 2017] lua VM shutdown  
+[Sun Nov 19 17:10:41 2017] lua VM shutdown  
+[Sun Nov 19 17:10:45 2017] lua VM shutdown  
