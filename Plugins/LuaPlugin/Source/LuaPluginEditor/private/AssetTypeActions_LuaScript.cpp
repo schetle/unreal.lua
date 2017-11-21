@@ -3,6 +3,7 @@
 #include "FileHelper.h"
 #include "EditorStyle.h"
 #include "Editor/UnrealEd/Public/EditorReimportHandler.h"
+#include "EditorFramework/AssetImportData.h"
 
 
 #define LOCTEXT_NAMESPACE "AssetTypeActions"
@@ -14,7 +15,7 @@ void FAssetTypeActions_LuaScript::OpenAssetEditor(const TArray<UObject*>& InObje
 
     // Enable this to allow an external editor to modify the asset's source file.
     ULuaScript* luaAsset = Cast<ULuaScript>(InObjects[0]);
-    FPlatformProcess::LaunchFileInDefaultExternalApplication(*luaAsset->SourceFilename, NULL, ELaunchVerb::Open);
+    FPlatformProcess::LaunchFileInDefaultExternalApplication(*luaAsset->AssetImportData->GetFirstFilename(), NULL, ELaunchVerb::Open);
 }
 
 bool FAssetTypeActions_LuaScript::CanExecuteReimport(const TArray<TWeakObjectPtr<ULuaScript>> Objects) const {

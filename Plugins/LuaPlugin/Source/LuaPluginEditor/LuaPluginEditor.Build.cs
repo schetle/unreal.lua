@@ -12,6 +12,7 @@ public class LuaPluginEditor : ModuleRules
 			new string[] {
 				"Core",
 				"CoreUObject",
+				"Engine",
                 "UnrealEd", // for FAssetEditorManager
 				"Slate",
 				"SlateCore",

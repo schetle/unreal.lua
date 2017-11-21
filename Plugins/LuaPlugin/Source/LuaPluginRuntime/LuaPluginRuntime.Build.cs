@@ -17,6 +17,7 @@ public class LuaPluginRuntime : ModuleRules
 			new string[] {
 				"Core",
 				"CoreUObject",
+				"Engine"
 			}
 			);
 

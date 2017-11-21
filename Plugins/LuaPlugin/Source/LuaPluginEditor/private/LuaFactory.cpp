@@ -4,6 +4,7 @@
 #include "Misc/FileHelper.h"
 #include "LuaScript.h"
 #include "Editor.h"
+#include "EditorFramework/AssetImportData.h"
 
 
 ULuaFactory::ULuaFactory() {
@@ -32,7 +33,7 @@ UObject* ULuaFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNam
     if (FFileHelper::LoadFileToString(Code, *Filename)) {
         LuaScript = NewObject<ULuaScript>(InParent, InClass, InName, Flags);
         LuaScript->Code = Code;
-        LuaScript->SourceFilename = GetCurrentFilename();
+		LuaScript->AssetImportData->Update(CurrentFilename);
     }
 
     FEditorDelegates::OnAssetPostImport.Broadcast(this, LuaScript);
@@ -45,7 +46,7 @@ UObject* ULuaFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNam
 bool ULuaFactory::CanReimport(UObject* Obj, TArray<FString>& OutFilenames) {
     ULuaScript* LuaScriptToReimport = Cast<ULuaScript>(Obj);
     if (LuaScriptToReimport) {
-        OutFilenames.Add(LuaScriptToReimport->SourceFilename);
+		LuaScriptToReimport->AssetImportData->ExtractFilenames(OutFilenames);
         return true;
     }
     return false;
@@ -54,7 +55,8 @@ bool ULuaFactory::CanReimport(UObject* Obj, TArray<FString>& OutFilenames) {
 void ULuaFactory::SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths) {
     ULuaScript* LuaScriptToReimport = Cast<ULuaScript>(Obj);
     if (LuaScriptToReimport && ensure(NewReimportPaths.Num() == 1)) {
-        LuaScriptToReimport->SourceFilename = NewReimportPaths[0];
+        //LuaScriptToReimport->SourceFilename = NewReimportPaths[0];
+        LuaScriptToReimport->AssetImportData->UpdateFilenameOnly(NewReimportPaths[0]);
     }
 }
 
@@ -65,13 +67,13 @@ EReimportResult::Type ULuaFactory::Reimport(UObject* InObject) {
         return EReimportResult::Failed;
     }
 
-    if (LuaScriptToReimport->SourceFilename.IsEmpty() || !FPaths::FileExists(LuaScriptToReimport->SourceFilename)) {
+    if (LuaScriptToReimport->AssetImportData->GetFirstFilename().IsEmpty() || !FPaths::FileExists(LuaScriptToReimport->AssetImportData->GetFirstFilename())) {
         return EReimportResult::Failed;
     }
 
     bool OutCanceled = false;
     if (ImportObject(InObject->GetClass(), InObject->GetOuter(), *InObject->GetName(), RF_Public | RF_Standalone,
-                     LuaScriptToReimport->SourceFilename, nullptr, OutCanceled)) {
+                     LuaScriptToReimport->AssetImportData->GetFirstFilename(), nullptr, OutCanceled)) {
         
 
         return EReimportResult::Succeeded;
